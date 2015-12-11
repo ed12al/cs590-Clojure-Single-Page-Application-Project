@@ -11,34 +11,16 @@
   [quiz-result]
   (mc/insert-and-return db document quiz-result))
 
-(defn get-quiz-question-by-id
+(defn get-quiz-questions
   [id]
-  (let [qmap (mc/find-one-as-map db document {:id id} ["id" "question" "choices"])
-        qid (:id qmap)
-        qq (:question qmap)
-        qc (:choices qmap)]
-    {:id qid :question qq :choices qc}))
-
-(defn get-quiz-answer-by-id
-  [id]
-  (mc/find-one-as-map db document {:id id} ["answer"]))
+  (let [qmap (mc/find-one-as-map db document {:id id} ["questions"])]
+    (:questions qmap)))
 
 (defn correct?
-  [id answer]
-  (if (= (:answer (get-quiz-answer-by-id id)) answer)
-    true
-    false))
+  [answer ans]
+  (if (= answer ans) 1 0))
 
-
-;;(add-quiz {:id 12
-;;           :question "What is the mascot of CSULA?"
-;;           :answer "Eddie the Golden Eagle"
-;;           :choices {:c1 "Eddy the Golden Bear"
-;;                     :c2 "Eddy the Golden Eagle"
-;;                     :c3 "Eddie the Golden Bear"
-;;                     :c4 "Eddie the Golden Eagle"}})
-
-
-;;(correct? 1 "Washington DC")
-
-;;(:answer (get-quiz-answer-by-id 1))
+(defn get-score
+  [id answers]
+  (let [qmap (mc/find-one-as-map db document {:id id} ["answer"])]
+    (reduce + (map correct? (:answer qmap) answers))))
