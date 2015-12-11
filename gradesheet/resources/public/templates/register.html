@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <title>Homework3</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  </head>
+  <body>
+      <div class="container">
+		<div class="page-header">
+			<p>Login Page</p>
+		</div>
+        <form class="form-inline text-center">
+			<div class="form-group">
+				<label for="username">Username: </label>
+                <input id="usename" type="text" class="form-control" name="username" required>
+                <br/> <br/>
+                <label for="password">Password: </label>
+                <input id="pass" type="password" class="form-control" id="password" name="password" required>
+                <br/> <br/>
+                <input id="eval-button" type="submit" class="btn btn-primary" value="Submit"/>
+
+                <p id="usernameResult" class="text-danger"></p>
+                <p id="passwordResult" class="text-danger"></p>
+                <p id="result" class="text-danger"></p>
+            </div>
+        </form>
+	  </div>
+      <script src="/js/client.js" language="javascript"></script>
+      <script type="text/javascript" language="javascript">
+          gradesheet_cljs.client.main()
+      </script>
+  </body>
+</html>
+
