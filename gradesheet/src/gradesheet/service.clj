@@ -34,13 +34,8 @@
   [request]
   (try
     (let [inputs (read-string (slurp (:body request)))
-          num (Integer. (:quiz inputs))
-          jsonQuiz1 (quiz/get-quiz-question-by-id (- (* num 3) 2))
-          jsonQuiz2 (quiz/get-quiz-question-by-id (- (* num 3) 1))
-          jsonQuiz3 (quiz/get-quiz-question-by-id (* num 3))]
-          (bootstrap/json-response [{:num "Q1" :value jsonQuiz1}
-                                    {:num "Q2" :value jsonQuiz2}
-                                    {:num "Q3" :value jsonQuiz3}]))
+          num (Integer. (:quiz inputs))]
+          (bootstrap/json-response (quiz/get-quiz-question num)))
     (catch Throwable t
       (ring-resp/response "quiz not found"))))
 
