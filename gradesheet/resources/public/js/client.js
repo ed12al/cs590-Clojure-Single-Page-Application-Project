@@ -32287,28 +32287,25 @@ gradesheet_cljs.client.receive_username = function receive_username(event) {
 gradesheet_cljs.client.receive_password = function receive_password(event) {
   return domina.set_text_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.passwordResult), event.target.getResponseText());
 };
+gradesheet_cljs.client.json_choice_to_option = function json_choice_to_option(choice) {
+  return[cljs.core.str("\x3coption\x3e"), cljs.core.str(choice), cljs.core.str("\x3c/option\x3e")].join("");
+};
+gradesheet_cljs.client.json_choices_to_option = function json_choices_to_option(quizChoices) {
+  return cljs.core.reduce.call(null, cljs.core.str, cljs.core.map.call(null, gradesheet_cljs.client.json_choice_to_option, quizChoices));
+};
 gradesheet_cljs.client.json_quiz_to_html = function json_quiz_to_html(jsonQuiz) {
-  var quizNum = jsonQuiz.num;
-  var quizValue = jsonQuiz.value;
-  var question = quizValue.question;
-  var quizId = quizValue.id;
-  var quizChoices = quizValue.choices;
-  var c1 = quizChoices.c1;
-  var c2 = quizChoices.c2;
-  var c3 = quizChoices.c3;
-  var c4 = quizChoices.c4;
-  return[cljs.core.str("\x3cp\x3e"), cljs.core.str(question), cljs.core.str("\x3c/p\x3e\n         \x3cselect id\x3d'"), cljs.core.str(quizNum), cljs.core.str("' name\x3d'"), cljs.core.str(quizId), cljs.core.str("' \x3e\n         \x3coption value\x3d'"), cljs.core.str(c1), cljs.core.str("'\x3e"), cljs.core.str(c1), cljs.core.str("\x3c/option\x3e\n         \x3coption value\x3d'"), cljs.core.str(c2), cljs.core.str("'\x3e"), cljs.core.str(c2), cljs.core.str("\x3c/option\x3e\n         \x3coption value\x3d'"), 
-  cljs.core.str(c3), cljs.core.str("'\x3e"), cljs.core.str(c3), cljs.core.str("\x3c/option\x3e\n         \x3coption value\x3d'"), cljs.core.str(c4), cljs.core.str("'\x3e"), cljs.core.str(c4), cljs.core.str("\x3c/option\x3e\n       \x3c/select\x3e")].join("");
+  var question = jsonQuiz.question;
+  var quizChoices = jsonQuiz.choices;
+  return[cljs.core.str("\x3cp\x3e"), cljs.core.str(question), cljs.core.str("\x3c/p\x3e\n         \x3cselect\x3e"), cljs.core.str(gradesheet_cljs.client.json_choices_to_option.call(null, quizChoices)), cljs.core.str("\x3c/select\x3e")].join("");
 };
 gradesheet_cljs.client.json_quizes_to_html = function json_quizes_to_html(jsonArray) {
   return cljs.core.reduce.call(null, cljs.core.str, cljs.core.map.call(null, gradesheet_cljs.client.json_quiz_to_html, jsonArray));
 };
-gradesheet_cljs.client.get_html = function get_html(jsonArray) {
-  return[cljs.core.str(gradesheet_cljs.client.json_quizes_to_html.call(null, jsonArray))].join("");
+gradesheet_cljs.client.get_html = function get_html(jsonQuizObject) {
+  return[cljs.core.str(gradesheet_cljs.client.json_quizes_to_html.call(null, jsonQuizObject.questions))].join("");
 };
 gradesheet_cljs.client.receive_post = function receive_post(event) {
-  console.log(event.target.getResponseJson());
-  return domina.set_text_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.display_id), event.target.getResponseJson());
+  return domina.set_inner_html_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.display_id), gradesheet_cljs.client.get_html.call(null, event.target.getResponseJson()));
 };
 gradesheet_cljs.client.receive_score = function receive_score(event) {
   return domina.set_inner_html_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.display_id), event.target.getResponseText());
