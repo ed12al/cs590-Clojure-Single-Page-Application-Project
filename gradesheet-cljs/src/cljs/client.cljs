@@ -65,8 +65,10 @@
   (str (json-quizes-to-html jsonArray)))
 
 (defn receive-post [event]
-  (d/set-inner-html! (d/by-id display-id)
-               (get-html (.getResponseJson (.-target event)))))
+  (.log js/console (.getResponseJson (.-target event)))
+  (d/set-text! (d/by-id display-id)
+
+                     (.getResponseJson (.-target event))))
 
 (defn receive-score [event]
   (d/set-inner-html! (d/by-id display-id)
