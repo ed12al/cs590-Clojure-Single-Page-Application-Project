@@ -3,7 +3,9 @@
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.route.definition :refer [defroutes]]
-            [io.pedestal.interceptor.helpers :refer [definterceptor defhandler]]
+            [io.pedestal.interceptor.helpers :refer [definterceptor]]
+            [io.pedestal.http.ring-middlewares :as middlewares]
+            [ring.middleware.session.cookie :as cookie]
             [ring.util.response :as ring-resp]
             [gradesheet.layout :as layout]
             [gradesheet.model.user :as user]
@@ -45,9 +47,17 @@
     (catch Throwable t
       (ring-resp/response "quiz not found"))))
 
+(defn auth?
+  [request]
+  (let [token (get-in request [:session :token])
+        username (get-in request [:session :username])]
+    (user/valid-token? username token)))
+
 (defn home-page
   [request]
-  (layout/render "home.html"))
+  (if (auth? request)
+    (layout/render "home.html")
+    (ring-resp/redirect "/login")))
 
 (defn register-page
   [request]
@@ -118,7 +128,7 @@
             (do
               (user/update-user {:username username} {:token (uuid)})
               (-> (ring-resp/redirect "/")
-                  (ring-resp/header "x-catalog-token" (user/get-user-token username))))
+                          (assoc :session {:username username :token (user/get-user-token username)})))
 
             (do
               (ring-resp/response "wrong"))))
@@ -144,6 +154,11 @@
 
     (catch Throwable t
       (ring-resp/response "failed to register"))))
+
+(defn logout
+  [request]
+  (-> (ring-resp/redirect "/login")
+      (assoc :session {:username nil :token nil})))
 
 (def facebook-user
   (atom {:facebook-id "" :facebook-name "" :facebook-email ""}))
@@ -194,6 +209,8 @@
   )
 
 
+
+
 (def CLIENT_ID_GOOGLE "569865038784-d3oftdq3heetu1k9rvs27nho1lnj9st0.apps.googleusercontent.com")
 (def REDIRECT_URI_GOOGLE "http://localhost:3030/auth_google")
 (def login-uri_GOOGLE "https://accounts.google.com")
@@ -235,33 +252,32 @@
   )
 
 
-(defhandler token-check [request]
-  (let [token (get-in request [:headers "x-catalog-token"])]
-    (if (not (= token "o brave world"))
-      (assoc (ring-resp/response {:body "access denied"}) :status 403))))
+(definterceptor session-interceptor
+  (middlewares/session {:store (cookie/cookie-store)}))
 
 (defroutes routes
   ;; Defines "/" and "/about" routes with their associated :get handlers.
   ;; The interceptors defined after the verb map (e.g., {:get home-page}
   ;; apply to / and its children (/about).
-  [[[ "/" {:get home-page}
+  [[[ "/"
+       ^:interceptors [session-interceptor]
+      {:get home-page}]
 
      ["/login" {:get login-page}]
      ["/register" {:get register-page}]
      ["/check-username" {:post check-username}]
      ["/check-password" {:post check-password}]
-     ["/validate" {:post validate-user}]
+     ["/validate" ^:interceptors [ middlewares/params middlewares/keyword-params session-interceptor ] {:post validate-user}]
      ["/register" {:post register-user}]
      ["/getfb" {:get call_fb}]
      ["/auth_facebook" {:get facebook}]
      ["/google" {:get call_google}]
      ["/auth_google" {:get google}]
-     ;;^:interceptors [(body-params/body-params) token-check]
-
-     ["/quiz" {:post quiz-page}]
-     ["/submitQuiz" {:post submit-quiz}]
-     ["/getQuizCount" {:post getQuizNumber}]
-     ]]])
+     ["/logout" ^:interceptors [middlewares/params middlewares/keyword-params session-interceptor] {:post logout}]
+     ["/quiz" ^:interceptors [session-interceptor] {:post quiz-page}]
+     ["/submitQuiz" ^:interceptors [session-interceptor] {:post submit-quiz}]
+     ["/getQuizCount" ^:interceptors [session-interceptor] {:post getQuizNumber}]
+     ]])
 
 ;; Consumed by gradesheet.server/create-server
 ;; See bootstrap/default-interceptors for additional options you can configure
@@ -287,5 +303,5 @@
               ;; Either :jetty, :immutant or :tomcat (see comments in project.clj)
               ::bootstrap/type :jetty
               ;;::bootstrap/host "localhost"
-              ::bootstrap/port 8080})
+              ::bootstrap/port 3030})
 

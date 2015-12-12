@@ -3,6 +3,7 @@
             [domina :as d]
             [domina.events :as events]))
 
+
 (def username-id "username")
 (def password-id "password")
 (def username-register-id "username-register")
@@ -130,6 +131,8 @@
   (str {:quiz num})))
 
 
+
+
 (defn ^:export main []
   (events/listen! (d/by-id button-id)
                   :click
@@ -164,6 +167,7 @@
                     (post-for-username (get-expr-register))
                     (events/stop-propagation event)
                     (events/prevent-default event)))
+
 
   (events/listen! (d/by-id password-register-id)
                   :keyup

@@ -22,7 +22,7 @@
     (:token tmap)))
 
 (defn update-user
-  [username,token]
+  [username token]
   (mc/update db document {:username (username :username) } {$set {:token (token :token) }}))
 
 (defn exist-user?
@@ -36,3 +36,7 @@
   (if (empty? (get-user {:username username :password password}))
     false
     true))
+
+(defn valid-token?
+  [username token]
+  (and username token (= token (get-user-token username))))
