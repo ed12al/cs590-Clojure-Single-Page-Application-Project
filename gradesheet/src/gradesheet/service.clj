@@ -6,7 +6,8 @@
             [ring.util.response :as ring-resp]
             [gradesheet.layout :as layout]
             [gradesheet.model.user :as user]
-            [gradesheet.model.quiz :as quiz]))
+            [gradesheet.model.quiz :as quiz]
+            ))
 
 (def upper (re-pattern "[A-Z]+"))
 (def number (re-pattern "[0-9]+"))
@@ -24,11 +25,9 @@
   (and (strength? password) (length? password)))
 
 
-(defn about-page
+(defn login-page
   [request]
-  (ring-resp/response (format "Clojure %s - served from %s"
-                              (clojure-version)
-                              (route/url-for ::about-page))))
+  (layout/render "register.html"))
 
 (defn quiz-page
   [request]
@@ -104,19 +103,37 @@
     (catch Throwable t
       (ring-resp/response "failed to register"))))
 
+(defn validate-user
+  [request]
+
+  (try
+    (let [form (:form-params (body-params/form-parser request))
+          username (String. (get form "username"))
+          password (String. (get form "password"))]
+
+          (if (user/auth-user? username password)
+            ;;(ring-resp/response "successfully login")
+            (ring-resp/redirect "/")
+            (ring-resp/response "wrong")))
+
+    (catch Throwable t
+      (ring-resp/response "failed to register"))))
+
 (defroutes routes
   ;; Defines "/" and "/about" routes with their associated :get handlers.
   ;; The interceptors defined after the verb map (e.g., {:get home-page}
   ;; apply to / and its children (/about).
   [[["/" {:get home-page}
      ;;^:interceptors [(body-params/body-params) bootstrap/html-body]
-     ["/about" {:get about-page}]
+     ["/login" {:get login-page}]
      ["/register" {:get register-page}]
      ["/check-username" {:post check-username}]
      ["/check-password" {:post check-password}]
      ["/register" {:post submit}]
      ["/quiz" {:post quiz-page}]
-     ["/submitQuiz" {:post submit-quiz}]]]])
+     ["/submitQuiz" {:post submit-quiz}]
+     ["/validate" {:post validate-user}]
+     ]]])
 
 ;; Consumed by gradesheet.server/create-server
 ;; See bootstrap/default-interceptors for additional options you can configure
@@ -142,5 +159,5 @@
               ;; Either :jetty, :immutant or :tomcat (see comments in project.clj)
               ::bootstrap/type :jetty
               ;;::bootstrap/host "localhost"
-              ::bootstrap/port 8080})
+              ::bootstrap/port 3030})
 

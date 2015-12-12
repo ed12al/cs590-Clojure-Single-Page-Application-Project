@@ -4,7 +4,7 @@
             [monger.result :refer [ok? has-error?]]))
 
 (def conn (mg/connect))
-(def db (mg/get-db conn "hw1")) ;; database name
+(def db (mg/get-db conn "project")) ;; database name
 (def document "user") ;; document
 
 (defn add-user
@@ -26,3 +26,6 @@
   (if (empty? (get-user {:username username :password password}))
     false
     true))
+
+
+(auth-user? "amit70" "test1234")

@@ -3,7 +3,7 @@
             [domina :as d]
             [domina.events :as events]))
 
-(def username-id "usename")
+(def username-id "username")
 (def password-id "pass")
 (def usernameResult "usernameResult")
 (def passwordResult "passwordResult")
@@ -11,13 +11,15 @@
 (def button-id "eval-button")
 (def urlUsername "/check-username")
 (def urlPassword "/check-password")
-(def url "/submit")
+(def url "/validate")
 (def quiz-id "quiz")
 (def hw-id "hw")
 (def display-id "display")
 (def urlQuiz "/quiz")
 (def quizSub-id "quizSubmit")
 (def urlSubmitQuiz "/submitQuiz")
+(def checkLogin-id "checkLogin")
+
 
 (defn add-button []
   (d/set-style! (d/by-id "forbutton")
@@ -68,6 +70,7 @@
       (.getResponseText (.-target event))))
 
 (defn post-for-eval [expr-str]
+  ;;(xhr/send url receive-result "POST" expr-str)
   (xhr/send url receive-result "POST" expr-str))
 
 (defn post-for-username [expr-str]
@@ -103,12 +106,18 @@
   (str {:quiz num})))
 
 (defn ^:export main []
-  (events/listen! (d/by-id button-id)
-                  :click
-                  (fn [event]
-                    (post-for-eval (get-expr))
-                    (events/stop-propagation event)
-                    (events/prevent-default event)))
+  ;;(events/listen! (d/by-id button-id)
+    ;;              :click
+      ;;            (fn [event]
+        ;;            (post-for-eval (get-expr))
+          ;;          (events/stop-propagation event)
+            ;;        (events/prevent-default event)))
+ ;; (events/listen! (d/by-id checkLogin-id)
+  ;;                :click
+    ;;              (fn [event]
+      ;;              (post-for-eval (get-expr))
+        ;;            (events/stop-propagation event)
+          ;;          (events/prevent-default event)))
   (events/listen! (d/by-id quiz-id)
                   :change
                   (fn [event]

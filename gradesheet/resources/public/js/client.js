@@ -32257,7 +32257,7 @@ goog.require("domina");
 goog.require("domina");
 goog.require("goog.net.XhrIo");
 goog.require("goog.net.XhrIo");
-gradesheet_cljs.client.username_id = "usename";
+gradesheet_cljs.client.username_id = "username";
 gradesheet_cljs.client.password_id = "pass";
 gradesheet_cljs.client.usernameResult = "usernameResult";
 gradesheet_cljs.client.passwordResult = "passwordResult";
@@ -32265,13 +32265,14 @@ gradesheet_cljs.client.result_id = "result";
 gradesheet_cljs.client.button_id = "eval-button";
 gradesheet_cljs.client.urlUsername = "/check-username";
 gradesheet_cljs.client.urlPassword = "/check-password";
-gradesheet_cljs.client.url = "/submit";
+gradesheet_cljs.client.url = "/validate";
 gradesheet_cljs.client.quiz_id = "quiz";
 gradesheet_cljs.client.hw_id = "hw";
 gradesheet_cljs.client.display_id = "display";
 gradesheet_cljs.client.urlQuiz = "/quiz";
 gradesheet_cljs.client.quizSub_id = "quizSubmit";
 gradesheet_cljs.client.urlSubmitQuiz = "/submitQuiz";
+gradesheet_cljs.client.checkLogin_id = "checkLogin";
 gradesheet_cljs.client.add_button = function add_button() {
   return domina.set_style_BANG_.call(null, domina.by_id.call(null, "forbutton"), "visibility", "visible");
 };
@@ -32345,11 +32346,6 @@ gradesheet_cljs.client.get_quiz = function get_quiz() {
   return[cljs.core.str(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "quiz", "quiz", 1017386439), num], null))].join("");
 };
 gradesheet_cljs.client.main = function main() {
-  domina.events.listen_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.button_id), new cljs.core.Keyword(null, "click", "click", 1108654330), function(event) {
-    gradesheet_cljs.client.post_for_eval.call(null, gradesheet_cljs.client.get_expr.call(null));
-    domina.events.stop_propagation.call(null, event);
-    return domina.events.prevent_default.call(null, event);
-  });
   domina.events.listen_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.quiz_id), new cljs.core.Keyword(null, "change", "change", 3947235106), function(event) {
     gradesheet_cljs.client.post_for_quiz.call(null, gradesheet_cljs.client.get_quiz.call(null));
     gradesheet_cljs.client.add_button.call(null);
