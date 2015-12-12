@@ -7,6 +7,7 @@
         <meta name="keywords" content="expand, form, css3, jquery, animate, width, height, adapt, unobtrusive javascript"/>
 		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
         <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 		<script src="js/cufon-yui.js" type="text/javascript"></script>
 		<script src="js/ChunkFive_400.font.js" type="text/javascript"></script>
 		<script type="text/javascript">
@@ -15,46 +16,108 @@
 			Cufon.replace('h3',{ textShadow: '1px 1px #000'});
 			Cufon.replace('.back');
 		</script>
+        <style type="text/css">
+            @media (min-width: 768px) {
+    .omb_row-sm-offset-3 div:first-child[class*="col-"] {
+        margin-left: 25%;
+    }
+}
+
+.omb_login .omb_authTitle {
+    text-align: center;
+	line-height: 300%;
+}
+
+.omb_login .omb_socialButtons a {
+	color: white; // In yourUse @body-bg
+	opacity:0.9;
+}
+.omb_login .omb_socialButtons a:hover {
+    color: white;
+	opacity:1;
+}
+.omb_login .omb_socialButtons .omb_btn-facebook {background: #3b5998;}
+.omb_login .omb_socialButtons .omb_btn-twitter {background: #00aced;}
+.omb_login .omb_socialButtons .omb_btn-google {background: #c32f10;}
+
+
+.omb_login .omb_loginOr {
+	position: relative;
+	font-size: 1.5em;
+	color: #aaa;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+.omb_login .omb_loginOr .omb_hrOr {
+	background-color: #cdcdcd;
+	height: 1px;
+	margin-top: 0px !important;
+	margin-bottom: 0px !important;
+}
+.omb_login .omb_loginOr .omb_spanOr {
+	display: block;
+	position: absolute;
+	left: 50%;
+	top: -0.6em;
+	margin-left: -1.5em;
+	background-color: white;
+	width: 3em;
+	text-align: center;
+}
+
+.omb_login .omb_loginForm .input-group.i {
+	width: 2em;
+}
+.omb_login .omb_loginForm  .help-block {
+    color: red;
+}
+
+
+@media (min-width: 768px) {
+    .omb_login .omb_forgotPwd {
+        text-align: right;
+		margin-top:10px;
+ 	}
+}
+        </style>
     </head>
     <body>
 		<div class="wrapper">
 			<h1 style="text-align:center;">Welcome to CS590 course</h1>
 			<div class="content">
 				<div id="form_wrapper" class="form_wrapper">
-                    <form class="register" action="/registerdata" method="post">
+                    <form class="register" action="/register" method="post">
                         {% csrf-field %}
 						<h3>Register</h3>
 						<div class="column">
 							<div>
-								<label>First Name:</label>
-								<input type="text" name="first_name" required/>
-								<span class="error">This is an error</span>
+								<label>Username:</label>
+								<input type="text" name="username-register" id="username-register" required/>
+								<span class="error" id="usernameResult"></span>
 							</div>
-							<div>
-								<label>Last Name:</label>
-								<input type="text" name="last_name" required/>
-								<span class="error">This is an error</span>
+                            <div>
+								<label>Email:</label>
+								<input type="text" name="email-register" required/>
+
 							</div>
 						</div>
 						<div class="column">
-							<div>
-								<label>Email:</label>
-								<input type="text" name="email" required/>
-								<span class="error">This is an error</span>
-							</div>
+
 							<div>
 								<label>Password:</label>
-								<input type="password" id="password" name="password" required/>
-								<span class="error">This is an error</span>
+								<input type="password" id="password-register" name="password-register" required/>
+								<span class="error" id="passwordResult"></span>
 							</div>
                             <div>
 								<label>Confirm Password:</label>
 								<input type="password" id="confirm_password" name="confirm_password" required/>
-								<span class="error">This is an error</span>
+								<span class="error"></span>
 							</div>
 						</div>
 						<div class="bottom">
-						    <input type="submit" name="Submit" value="Register" />
+						    <input type="submit" name="Submit" id="addUser" value="Register" />
 							<a href="index.html" rel="login" class="linkform">You have an account already? Log in here</a>
 							<div class="clear"></div>
 						</div>
@@ -73,25 +136,42 @@
 						</div>
 						<div class="bottom">
 							<input type="submit" id="checkLogin" value="Login"></input>
+                        <div class="row omb_row-sm-offset-3 omb_socialButtons">
+                <div class="col-xs-4 col-sm-2">
+		        <a href="/getfb" class="btn btn-lg btn-block omb_btn-facebook">
+			        <i class="fa fa-facebook visible-xs"></i>
+			        <span class="hidden-xs">Facebook</span>
+		        </a>
+	        </div>
+                            <div class="col-xs-4 col-sm-2">
+		        <a href="/google" class="btn btn-lg btn-block omb_btn-google">
+			        <i class="fa fa-google-plus visible-xs"></i>
+			        <span class="hidden-xs">Google+</span>
+		        </a>
+	        </div>
+                </div>
 							<a href="register.html" rel="register" class="linkform">You don't have an account yet? Register here</a>
 							<div class="clear"></div>
 						</div>
                     <p id="result"></p>
 					</form>
+
                 <form class="forgot_password" action="/forget" method="GET">
 						<h3>Forgot Password</h3>
 						<div>
 							<label>Username or Email:</label>
 							<input type="text" name="forget_email" required/>
-							<span class="error">This is an error</span>
+							<span class="error"></span>
 						</div>
 						<div class="bottom">
 							<input type="submit" value="Submit"></input>
+
 							<a href="index.html" rel="login" class="linkform">Suddenly remebered? Log in here</a>
 							<a href="register.html" rel="register" class="linkform">You don't have an account? Register here</a>
 							<div class="clear"></div>
 						</div>
 					</form>
+
 				</div>
 				<div class="clear"></div>
 			</div>
@@ -176,13 +256,13 @@
 				*/
 				$form_wrapper.find('input[type="submit"]')
 							 .click(function(e){
-                                 var pass = $('#password').val();
-                                 var confirm_pass = $('#confirm_password').val();
-                                 if(pass != confirm_pass )
-                                 {
-                                     alert("Password and Confirm Password do not match");
-                                     return false;
-                                 }
+                                 //var pass = $('#password').val();
+                                 //var confirm_pass = $('#confirm_password').val();
+                                 //if(pass != confirm_pass )
+                                // {
+                                  //   alert("Password and Confirm Password do not match");
+                                    // return false;
+                                 //}
 								//e.preventDefault();
 							 });
 			});

@@ -4,7 +4,10 @@
             [domina.events :as events]))
 
 (def username-id "username")
-(def password-id "pass")
+(def password-id "password")
+(def username-register-id "username-register")
+(def password-register-id "password-register")
+(def email-register-id "email-register")
 (def usernameResult "usernameResult")
 (def passwordResult "passwordResult")
 (def result-id "result")
@@ -101,6 +104,11 @@
         password (.-value (d/by-id password-id))]
   (str {:username username :password password})))
 
+(defn get-expr-register []
+  (let [username (.-value (d/by-id username-register-id))
+        password (.-value (d/by-id password-register-id))]
+  (str {:username username :password password})))
+
 (defn get-quiz []
   (let [num (.-value (d/by-id quiz-id))]
   (str {:quiz num})))
@@ -133,15 +141,16 @@
                     (events/stop-propagation event)
                     (events/prevent-default event)))
 
-  (events/listen! (d/by-id username-id)
+  (events/listen! (d/by-id username-register-id)
                   :keyup
                   (fn [event]
-                    (post-for-username (get-expr))
+                    (post-for-username (get-expr-register))
                     (events/stop-propagation event)
                     (events/prevent-default event)))
-  (events/listen! (d/by-id password-id)
+
+  (events/listen! (d/by-id password-register-id)
                   :keyup
                   (fn [event]
-                    (post-for-password (get-expr))
+                    (post-for-password (get-expr-register))
                     (events/stop-propagation event)
                     (events/prevent-default event))))

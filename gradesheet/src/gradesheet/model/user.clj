@@ -28,4 +28,4 @@
     true))
 
 
-(auth-user? "amit70" "test1234")
+(exist-user? "amit70")

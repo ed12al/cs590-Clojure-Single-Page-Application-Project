@@ -7,6 +7,10 @@
             [gradesheet.layout :as layout]
             [gradesheet.model.user :as user]
             [gradesheet.model.quiz :as quiz]
+            [clj-oauth2.client :as oauth2]
+           [noir.response :as resp]
+           [clj-http.client :as client]
+           [cheshire.core :as parse]
             ))
 
 (def upper (re-pattern "[A-Z]+"))
@@ -83,9 +87,10 @@
   (try
     (let [inputs (read-string (slurp (:body request)))
           password (String. (:password inputs))]
-        (if (valid-password? password)
-          (ring-resp/response "strong password")
-          (ring-resp/response "weak password")))
+      (clojure.pprint/pprint password)
+        (if (not (valid-password? password))
+          (ring-resp/response "weak password")
+          (ring-resp/response "strong password")))
     (catch Throwable t
       (ring-resp/response "password cannot be empty"))))
 
@@ -119,6 +124,115 @@
     (catch Throwable t
       (ring-resp/response "failed to register"))))
 
+
+(defn register-user
+  [request]
+
+  (try
+    (let [form (:form-params (body-params/form-parser request))
+          username (String. (get form "username-register"))
+          email (String. (get form "email-register"))
+          password (String. (get form "password-register"))]
+
+      (user/add-user {:username username :password password :email email})
+         ;; (if (user/auth-user? username password)
+            ;;(ring-resp/response "successfully login")
+            (ring-resp/redirect "/")
+            )
+
+    (catch Throwable t
+      (ring-resp/response "failed to register"))))
+
+(def facebook-user
+  (atom {:facebook-id "" :facebook-name "" :facebook-email ""}))
+
+(def APP_ID "942931509114622")
+(def APP_SECRET "74293a60159d5d4b13a6cf0074101118")
+(def REDIRECT_URI "http://localhost:3030/auth_facebook")
+
+(def facebook-oauth2
+ {:authorization-uri "https://graph.facebook.com/oauth/authorize"
+  :access-token-uri "https://graph.facebook.com/oauth/access_token"
+  :redirect-uri REDIRECT_URI
+  :client-id APP_ID
+  :client-secret APP_SECRET
+  :access-query-param :access_token
+  :scope ["email"]
+  :grant-type "authorization_code"})
+
+(defn call_fb[request]
+  (clojure.pprint/pprint "reached")
+(resp/redirect
+  (:uri (oauth2/make-auth-request facebook-oauth2)))
+)
+
+
+(defn facebook [request]
+
+ (let [access-token-response  (:body (client/get (str "https://graph.facebook.com/oauth/access_token?"
+                                                    "client_id=" APP_ID
+                                                  "&redirect_uri=" REDIRECT_URI
+                                                    "&client_secret=" APP_SECRET
+                                                "&code=" (get-in request[:params :code] ))))
+
+       access-token (get (re-find #"access_token=(.*?)&expires=" access-token-response) 1)
+       user-details (-> (client/get (str "https://graph.facebook.com/me?access_token=" access-token))
+                        :body
+                       (parse/parse-string))]
+(clojure.pprint/pprint user-details)
+
+(swap! facebook-user
+   #(assoc % :facebook-id %2 :facebook-name %3 :facebook-email %4)
+     (get user-details "id")
+     (get user-details "first_name")
+     (get user-details "email")))
+
+  (ring-resp/redirect "/")
+
+  )
+
+
+(def CLIENT_ID_GOOGLE "569865038784-d3oftdq3heetu1k9rvs27nho1lnj9st0.apps.googleusercontent.com")
+(def REDIRECT_URI_GOOGLE "http://localhost:3030/auth_google")
+(def login-uri_GOOGLE "https://accounts.google.com")
+(def CLIENT_SECRET_GOOGLE "v0nwnTlxkRrAQCU10aNkZg7a")
+(def google-user (atom {:google-id "" :google-name "" :google-email ""}))
+
+(def red
+  (str "https://accounts.google.com/o/oauth2/auth?"
+              "scope=email%20profile&"
+              "redirect_uri=" (ring.util.codec/url-encode REDIRECT_URI_GOOGLE) "&"
+              "response_type=code&"
+              "client_id=" (ring.util.codec/url-encode CLIENT_ID_GOOGLE) "&"
+              "approval_prompt=force"))
+
+(defn google [params]
+
+
+
+ (let [access-token-response (client/post "https://accounts.google.com/o/oauth2/token"
+                                          {:form-params {:code (get-in params[:params :code] )
+                                           :client_id CLIENT_ID_GOOGLE
+                                           :client_secret CLIENT_SECRET_GOOGLE
+                                           :redirect_uri REDIRECT_URI_GOOGLE
+                                           :grant_type "authorization_code"}})
+       user-details (parse/parse-string (:body (client/get (str "https://www.googleapis.com/oauth2/v1/userinfo?access_token="
+ (get (parse/parse-string (:body access-token-response)) "access_token")))))]
+
+      (clojure.pprint/pprint "================>")
+   (clojure.pprint/pprint user-details)
+   (clojure.pprint/pprint "================>")
+
+ (swap! google-user #(assoc % :google-id %2 :google-name %3 :google-email %4) (get user-details "id") (get user-details "name") (get user-details "email")))
+  (ring-resp/redirect "/")
+  )
+
+(defn call_google [request]
+  (clojure.pprint/pprint "reached")
+  (resp/redirect red)
+  )
+
+
 (defroutes routes
   ;; Defines "/" and "/about" routes with their associated :get handlers.
   ;; The interceptors defined after the verb map (e.g., {:get home-page}
@@ -133,6 +247,11 @@
      ["/quiz" {:post quiz-page}]
      ["/submitQuiz" {:post submit-quiz}]
      ["/validate" {:post validate-user}]
+     ["/register" {:post register-user}]
+     ["/getfb" {:get call_fb}]
+     ["/auth_facebook" {:get facebook}]
+     ["/google" {:get call_google}]
+     ["/auth_google" {:get google}]
      ]]])
 
 ;; Consumed by gradesheet.server/create-server
