@@ -35,7 +35,7 @@
   (try
     (let [inputs (read-string (slurp (:body request)))
           num (Integer. (:quiz inputs))]
-          (bootstrap/json-response (quiz/get-quiz-question num)))
+          (bootstrap/json-response {:num num :questions (quiz/get-quiz-questions num)}))
     (catch Throwable t
       (ring-resp/response "quiz not found"))))
 

@@ -39,34 +39,29 @@
   (d/set-text! (d/by-id passwordResult)
                (.getResponseText (.-target event))))
 
+(defn json-choice-to-option [choice]
+  (str "<option>" choice "</option>"))
+
+(defn json-choices-to-option [quizChoices]
+  (reduce str (map json-choice-to-option quizChoices)))
 
 (defn json-quiz-to-html [jsonQuiz]
-  (let [quizNum (.-num jsonQuiz)
-        quizValue (.-value jsonQuiz)
-        question (.-question quizValue)
-        quizId (.-id quizValue)
-        quizChoices (.-choices quizValue)
-        c1 (.-c1 quizChoices)
-        c2 (.-c2 quizChoices)
-        c3 (.-c3 quizChoices)
-        c4 (.-c4 quizChoices)]
+  (let [question (.-question jsonQuiz)
+        quizChoices (.-choices quizValue)]
     (str "<p>" question "</p>
-         <select id='" quizNum "' name='" quizId "' >
-         <option value='" c1 "'>" c1 "</option>
-         <option value='" c2 "'>" c2 "</option>
-         <option value='" c3 "'>" c3 "</option>
-         <option value='" c4 "'>" c4 "</option>
-       </select>")))
+         <select>"
+         (json-choices-to-option quizChoices)
+       "</select>")))
 
 (defn json-quizes-to-html [jsonArray]
   (reduce str (map json-quiz-to-html jsonArray)))
 
-(defn get-html [jsonArray]
-  (str (json-quizes-to-html jsonArray)))
+(defn get-html [jsonQuizObject]
+  (str (json-quizes-to-html (:questions jsonQuizObject))))
 
 (defn receive-post [event]
   (d/set-inner-html! (d/by-id display-id)
-               (get-html (.getResponseJson (.-target event)))))
+      (get-html (.getResponseJson (.-target event)))))
 
 (defn receive-score [event]
   (d/set-inner-html! (d/by-id display-id)
