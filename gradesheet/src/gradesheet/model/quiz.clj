@@ -24,4 +24,3 @@
   [id answers]
   (let [qmap (mc/find-one-as-map db document {:id id} ["answer"])]
     (reduce + (map correct? (:answers qmap) answers))))
-
