@@ -177,14 +177,14 @@
   :grant-type "authorization_code"})
 
 (defn call_fb[request]
-  (clojure.pprint/pprint "reached")
 (resp/redirect
   (:uri (oauth2/make-auth-request facebook-oauth2)))
 )
 
 
 (defn facebook [request]
-
+  (if (= "access_denied" (get-in request [:query-params :error]))
+    (ring-resp/redirect "/login")
  (let [access-token-response  (:body (client/get (str "https://graph.facebook.com/oauth/access_token?"
                                                     "client_id=" APP_ID
                                                   "&redirect_uri=" REDIRECT_URI
@@ -194,18 +194,19 @@
        access-token (get (re-find #"access_token=(.*?)&expires=" access-token-response) 1)
        user-details (-> (client/get (str "https://graph.facebook.com/me?access_token=" access-token))
                         :body
-                       (parse/parse-string))]
-(clojure.pprint/pprint user-details)
+                       (parse/parse-string))
 
-(swap! facebook-user
-   #(assoc % :facebook-id %2 :facebook-name %3 :facebook-email %4)
-     (get user-details "id")
-     (get user-details "first_name")
-     (get user-details "email")))
-
-  (ring-resp/redirect "/")
-
-  )
+       token (uuid)
+       username (str (get user-details "id"))]
+   (user/update-token-others username token)
+    (-> (ring-resp/redirect "/")
+      (assoc :session {:username username :token token})
+;;(swap! facebook-user
+  ;; #(assoc % :facebook-id %2 :facebook-name %3 :facebook-email %4)
+    ;; (get user-details "id")
+     ;;(get user-details "first_name")
+     ;;(get user-details "email"))
+   ))))
 
 
 
@@ -268,7 +269,7 @@
      ["/validate" ^:interceptors [middlewares/params middlewares/keyword-params session-interceptor] {:post validate-user}]
      ["/register" {:post register-user}]
      ["/getfb" {:get call_fb}]
-     ["/auth_facebook" {:get facebook}]
+     ["/auth_facebook" ^:interceptors [session-interceptor] {:get facebook}]
      ["/google" {:get call_google}]
      ["/auth_google" ^:interceptors [session-interceptor] {:get google}]
      ["/logout" ^:interceptors [middlewares/params middlewares/keyword-params session-interceptor] {:post logout}]
