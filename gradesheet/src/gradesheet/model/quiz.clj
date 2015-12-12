@@ -33,5 +33,3 @@
   []
   (let [qmap (mc/find-maps db document)]
     (into [] (map get-id qmap))))
-
-

@@ -26,3 +26,6 @@
   (if (empty? (get-user {:username username :password password}))
     false
     true))
+
+
+(exist-user? "amit70")

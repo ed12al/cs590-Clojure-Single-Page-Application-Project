@@ -32257,15 +32257,18 @@ goog.require("domina");
 goog.require("domina");
 goog.require("goog.net.XhrIo");
 goog.require("goog.net.XhrIo");
-gradesheet_cljs.client.username_id = "usename";
-gradesheet_cljs.client.password_id = "pass";
+gradesheet_cljs.client.username_id = "username";
+gradesheet_cljs.client.password_id = "password";
+gradesheet_cljs.client.username_register_id = "username-register";
+gradesheet_cljs.client.password_register_id = "password-register";
+gradesheet_cljs.client.email_register_id = "email-register";
 gradesheet_cljs.client.usernameResult = "usernameResult";
 gradesheet_cljs.client.passwordResult = "passwordResult";
 gradesheet_cljs.client.result_id = "result";
 gradesheet_cljs.client.button_id = "eval-button";
 gradesheet_cljs.client.urlUsername = "/check-username";
 gradesheet_cljs.client.urlPassword = "/check-password";
-gradesheet_cljs.client.url = "/submit";
+gradesheet_cljs.client.url = "/validate";
 gradesheet_cljs.client.quiz_id = "quiz";
 gradesheet_cljs.client.hw_id = "hw";
 gradesheet_cljs.client.display_id = "display";
@@ -32274,6 +32277,7 @@ gradesheet_cljs.client.quizSub_id = "quizSubmit";
 gradesheet_cljs.client.urlSubmitQuiz = "/submitQuiz";
 gradesheet_cljs.client.getQuiz_id = "getQuiz";
 gradesheet_cljs.client.urlGetQuiz = "/getQuizCount";
+gradesheet_cljs.client.checkLogin_id = "checkLogin";
 gradesheet_cljs.client.add_button = function add_button() {
   return domina.set_style_BANG_.call(null, domina.by_id.call(null, "forbutton"), "visibility", "visible");
 };
@@ -32355,6 +32359,11 @@ gradesheet_cljs.client.get_expr = function get_expr() {
   var password = domina.by_id.call(null, gradesheet_cljs.client.password_id).value;
   return[cljs.core.str(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "username", "username", 748190792), username, new cljs.core.Keyword(null, "password", "password", 2230889997), password], null))].join("");
 };
+gradesheet_cljs.client.get_expr_register = function get_expr_register() {
+  var username = domina.by_id.call(null, gradesheet_cljs.client.username_register_id).value;
+  var password = domina.by_id.call(null, gradesheet_cljs.client.password_register_id).value;
+  return[cljs.core.str(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "username", "username", 748190792), username, new cljs.core.Keyword(null, "password", "password", 2230889997), password], null))].join("");
+};
 gradesheet_cljs.client.get_quiz = function get_quiz() {
   var num = domina.by_id.call(null, gradesheet_cljs.client.quiz_id).value;
   return[cljs.core.str(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "quiz", "quiz", 1017386439), num], null))].join("");
@@ -32382,13 +32391,13 @@ gradesheet_cljs.client.main = function main() {
     domina.events.stop_propagation.call(null, event);
     return domina.events.prevent_default.call(null, event);
   });
-  domina.events.listen_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.username_id), new cljs.core.Keyword(null, "keyup", "keyup", 1115849900), function(event) {
-    gradesheet_cljs.client.post_for_username.call(null, gradesheet_cljs.client.get_expr.call(null));
+  domina.events.listen_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.username_register_id), new cljs.core.Keyword(null, "keyup", "keyup", 1115849900), function(event) {
+    gradesheet_cljs.client.post_for_username.call(null, gradesheet_cljs.client.get_expr_register.call(null));
     domina.events.stop_propagation.call(null, event);
     return domina.events.prevent_default.call(null, event);
   });
-  return domina.events.listen_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.password_id), new cljs.core.Keyword(null, "keyup", "keyup", 1115849900), function(event) {
-    gradesheet_cljs.client.post_for_password.call(null, gradesheet_cljs.client.get_expr.call(null));
+  return domina.events.listen_BANG_.call(null, domina.by_id.call(null, gradesheet_cljs.client.password_register_id), new cljs.core.Keyword(null, "keyup", "keyup", 1115849900), function(event) {
+    gradesheet_cljs.client.post_for_password.call(null, gradesheet_cljs.client.get_expr_register.call(null));
     domina.events.stop_propagation.call(null, event);
     return domina.events.prevent_default.call(null, event);
   });

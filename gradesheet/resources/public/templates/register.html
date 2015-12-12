@@ -1,33 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
-  <head>
-    <title>Homework3</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-  </head>
-  <body>
-      <div class="container">
-		<div class="page-header">
-			<p>Login Page</p>
+    <head>
+        <title>Login Example</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta name="description" content="Expand, contract, animate forms with jQuery wihtout leaving the page" />
+        <meta name="keywords" content="expand, form, css3, jquery, animate, width, height, adapt, unobtrusive javascript"/>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+		<script src="js/cufon-yui.js" type="text/javascript"></script>
+		<script src="js/ChunkFive_400.font.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			Cufon.replace('h1',{ textShadow: '1px 1px #fff'});
+			Cufon.replace('h2',{ textShadow: '1px 1px #fff'});
+			Cufon.replace('h3',{ textShadow: '1px 1px #000'});
+			Cufon.replace('.back');
+		</script>
+        <style type="text/css">
+            @media (min-width: 768px) {
+    .omb_row-sm-offset-3 div:first-child[class*="col-"] {
+        margin-left: 25%;
+    }
+}
+
+.omb_login .omb_authTitle {
+    text-align: center;
+	line-height: 300%;
+}
+
+.omb_login .omb_socialButtons a {
+	color: white; // In yourUse @body-bg
+	opacity:0.9;
+}
+.omb_login .omb_socialButtons a:hover {
+    color: white;
+	opacity:1;
+}
+.omb_login .omb_socialButtons .omb_btn-facebook {background: #3b5998;}
+.omb_login .omb_socialButtons .omb_btn-twitter {background: #00aced;}
+.omb_login .omb_socialButtons .omb_btn-google {background: #c32f10;}
+
+
+.omb_login .omb_loginOr {
+	position: relative;
+	font-size: 1.5em;
+	color: #aaa;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+.omb_login .omb_loginOr .omb_hrOr {
+	background-color: #cdcdcd;
+	height: 1px;
+	margin-top: 0px !important;
+	margin-bottom: 0px !important;
+}
+.omb_login .omb_loginOr .omb_spanOr {
+	display: block;
+	position: absolute;
+	left: 50%;
+	top: -0.6em;
+	margin-left: -1.5em;
+	background-color: white;
+	width: 3em;
+	text-align: center;
+}
+
+.omb_login .omb_loginForm .input-group.i {
+	width: 2em;
+}
+.omb_login .omb_loginForm  .help-block {
+    color: red;
+}
+
+
+@media (min-width: 768px) {
+    .omb_login .omb_forgotPwd {
+        text-align: right;
+		margin-top:10px;
+ 	}
+}
+        </style>
+    </head>
+    <body>
+		<div class="wrapper">
+			<h1 style="text-align:center;">Welcome to CS590 course</h1>
+			<div class="content">
+				<div id="form_wrapper" class="form_wrapper">
+                    <form class="register" action="/register" method="post">
+                        {% csrf-field %}
+						<h3>Register</h3>
+						<div class="column">
+							<div>
+								<label>Username:</label>
+								<input type="text" name="username-register" id="username-register" required/>
+								<span class="error" id="usernameResult"></span>
+							</div>
+                            <div>
+								<label>Email:</label>
+								<input type="text" name="email-register" required/>
+
+							</div>
+						</div>
+						<div class="column">
+
+							<div>
+								<label>Password:</label>
+								<input type="password" id="password-register" name="password-register" required/>
+								<span class="error" id="passwordResult"></span>
+							</div>
+                            <div>
+								<label>Confirm Password:</label>
+								<input type="password" id="confirm_password" name="confirm_password" required/>
+								<span class="error"></span>
+							</div>
+						</div>
+						<div class="bottom">
+						    <input type="submit" name="Submit" id="addUser" value="Register" />
+							<a href="index.html" rel="login" class="linkform">You have an account already? Log in here</a>
+							<div class="clear"></div>
+						</div>
+
+					</form>
+                    <form class="login active" action="/validate" method="post">
+
+						<h3>Login</h3>
+						<div>
+							<label>Username:</label>
+							<input type="text" name="username" id="username" required/>
+						</div>
+						<div>
+							<label>Password: <a href="forgot_password.html" rel="forgot_password" class="forgot linkform">Forgot your password?</a></label>
+							<input type="password" id="password" name="password" required/>
+						</div>
+						<div class="bottom">
+							<input type="submit" id="checkLogin" value="Login"></input>
+                        <div class="row omb_row-sm-offset-3 omb_socialButtons">
+                <div class="col-xs-4 col-sm-2">
+		        <a href="/getfb" class="btn btn-lg btn-block omb_btn-facebook">
+			        <i class="fa fa-facebook visible-xs"></i>
+			        <span class="hidden-xs">Facebook</span>
+		        </a>
+	        </div>
+                            <div class="col-xs-4 col-sm-2">
+		        <a href="/google" class="btn btn-lg btn-block omb_btn-google">
+			        <i class="fa fa-google-plus visible-xs"></i>
+			        <span class="hidden-xs">Google+</span>
+		        </a>
+	        </div>
+                </div>
+							<a href="register.html" rel="register" class="linkform">You don't have an account yet? Register here</a>
+							<div class="clear"></div>
+						</div>
+                    <p id="result"></p>
+					</form>
+
+                <form class="forgot_password" action="/forget" method="GET">
+						<h3>Forgot Password</h3>
+						<div>
+							<label>Username or Email:</label>
+							<input type="text" name="forget_email" required/>
+							<span class="error"></span>
+						</div>
+						<div class="bottom">
+							<input type="submit" value="Submit"></input>
+
+							<a href="index.html" rel="login" class="linkform">Suddenly remebered? Log in here</a>
+							<a href="register.html" rel="register" class="linkform">You don't have an account? Register here</a>
+							<div class="clear"></div>
+						</div>
+					</form>
+
+				</div>
+				<div class="clear"></div>
+			</div>
+
 		</div>
-        <form class="form-inline text-center">
-			<div class="form-group">
-				<label for="username">Username: </label>
-                <input id="usename" type="text" class="form-control" name="username" required>
-                <br/> <br/>
-                <label for="password">Password: </label>
-                <input id="pass" type="password" class="form-control" id="password" name="password" required>
-                <br/> <br/>
-                <input id="eval-button" type="submit" class="btn btn-primary" value="Submit"/>
 
-                <p id="usernameResult" class="text-danger"></p>
-                <p id="passwordResult" class="text-danger"></p>
-                <p id="result" class="text-danger"></p>
-            </div>
-        </form>
-	  </div>
-      <script src="/js/client.js" language="javascript"></script>
-      <script type="text/javascript" language="javascript">
-          gradesheet_cljs.client.main()
-      </script>
-  </body>
+
+		<!-- The JavaScript -->
+
+<script src="/js/client.js" language="javascript"></script>
+    <script type="text/javascript" language="javascript">
+      gradesheet_cljs.client.main()
+    </script>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript">
+
+			$(function() {
+					//the form wrapper (includes all forms)
+				var $form_wrapper	= $('#form_wrapper'),
+					//the current form is the one with class active
+					$currentForm	= $form_wrapper.children('form.active'),
+					//the change form links
+					$linkform		= $form_wrapper.find('.linkform');
+
+				//get width and height of each form and store them for later
+				$form_wrapper.children('form').each(function(i){
+					var $theForm	= $(this);
+					//solve the inline display none problem when using fadeIn fadeOut
+					if(!$theForm.hasClass('active'))
+						$theForm.hide();
+					$theForm.data({
+						width	: $theForm.width(),
+						height	: $theForm.height()
+					});
+				});
+
+				//set width and height of wrapper (same of current form)
+				setWrapperWidth();
+
+				/*
+				clicking a link (change form event) in the form
+				makes the current form hide.
+				The wrapper animates its width and height to the
+				width and height of the new current form.
+				After the animation, the new form is shown
+				*/
+				$linkform.bind('click',function(e){
+					var $link	= $(this);
+					var target	= $link.attr('rel');
+					$currentForm.fadeOut(400,function(){
+						//remove class active from current form
+						$currentForm.removeClass('active');
+						//new current form
+						$currentForm= $form_wrapper.children('form.'+target);
+						//animate the wrapper
+						$form_wrapper.stop()
+									 .animate({
+										width	: $currentForm.data('width') + 'px',
+										height	: $currentForm.data('height') + 'px'
+									 },500,function(){
+										//new form gets class active
+										$currentForm.addClass('active');
+										//show the new form
+										$currentForm.fadeIn(400);
+									 });
+					});
+					e.preventDefault();
+				});
+
+				function setWrapperWidth(){
+					$form_wrapper.css({
+						width	: $currentForm.data('width') + 'px',
+						height	: $currentForm.data('height') + 'px'
+					});
+				}
+
+				/*
+				for the demo we disabled the submit buttons
+				if you submit the form, you need to check the
+				which form was submited, and give the class active
+				to the form you want to show
+				*/
+				$form_wrapper.find('input[type="submit"]')
+							 .click(function(e){
+                                 //var pass = $('#password').val();
+                                 //var confirm_pass = $('#confirm_password').val();
+                                 //if(pass != confirm_pass )
+                                // {
+                                  //   alert("Password and Confirm Password do not match");
+                                    // return false;
+                                 //}
+								//e.preventDefault();
+							 });
+			});
+        </script>
+    </body>
 </html>
-

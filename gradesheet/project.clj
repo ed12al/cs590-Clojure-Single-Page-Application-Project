@@ -22,7 +22,9 @@
                  [metosin/ring-middleware-format "0.6.0"]
                  [metosin/ring-http-response "0.6.5"]
                  [ring/ring-defaults "0.1.5"]
-                 [com.novemberain/monger "2.1.0"]]
+                 [com.novemberain/monger "2.1.0"]
+                 [stuarth/clj-oauth2 "0.3.2"]
+                 [lib-noir "0.9.9"]]
   :min-lein-version "2.0.0"
   :resource-paths ["config", "resources"]
   :profiles {:dev {:aliases {"run-dev" ["trampoline" "run" "-m" "gradesheet.server/run-dev"]}

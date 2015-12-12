@@ -3,15 +3,18 @@
             [domina :as d]
             [domina.events :as events]))
 
-(def username-id "usename")
-(def password-id "pass")
+(def username-id "username")
+(def password-id "password")
+(def username-register-id "username-register")
+(def password-register-id "password-register")
+(def email-register-id "email-register")
 (def usernameResult "usernameResult")
 (def passwordResult "passwordResult")
 (def result-id "result")
 (def button-id "eval-button")
 (def urlUsername "/check-username")
 (def urlPassword "/check-password")
-(def url "/submit")
+(def url "/validate")
 (def quiz-id "quiz")
 (def hw-id "hw")
 (def display-id "display")
@@ -20,6 +23,7 @@
 (def urlSubmitQuiz "/submitQuiz")
 (def getQuiz-id "getQuiz")
 (def urlGetQuiz "/getQuizCount")
+(def checkLogin-id "checkLogin")
 
 (defn add-button []
   (d/set-style! (d/by-id "forbutton")
@@ -116,6 +120,11 @@
         password (.-value (d/by-id password-id))]
   (str {:username username :password password})))
 
+(defn get-expr-register []
+  (let [username (.-value (d/by-id username-register-id))
+        password (.-value (d/by-id password-register-id))]
+  (str {:username username :password password})))
+
 (defn get-quiz []
   (let [num (.-value (d/by-id quiz-id))]
   (str {:quiz num})))
@@ -148,15 +157,16 @@
                     (events/stop-propagation event)
                     (events/prevent-default event)))
 
-  (events/listen! (d/by-id username-id)
+  (events/listen! (d/by-id username-register-id)
                   :keyup
                   (fn [event]
-                    (post-for-username (get-expr))
+                    (post-for-username (get-expr-register))
                     (events/stop-propagation event)
                     (events/prevent-default event)))
-  (events/listen! (d/by-id password-id)
+
+  (events/listen! (d/by-id password-register-id)
                   :keyup
                   (fn [event]
-                    (post-for-password (get-expr))
+                    (post-for-password (get-expr-register))
                     (events/stop-propagation event)
                     (events/prevent-default event))))
