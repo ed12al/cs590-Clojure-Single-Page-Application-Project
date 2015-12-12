@@ -51,20 +51,9 @@
   [request]
   (try
     (let [inputs (read-string (slurp (:body request)))
-          q1 (Integer. (:id (:Q1 inputs)))
-          a1 (String. (:answer (:Q1 inputs)))
-          q2 (Integer. (:id (:Q2 inputs)))
-          a2 (String. (:answer (:Q2 inputs)))
-          q3 (Integer. (:id (:Q3 inputs)))
-          a3 (String. (:answer (:Q3 inputs)))
-          score (atom 0)]
-        (if (quiz/correct? q1 a1)
-          (swap! score inc))
-        (if (quiz/correct? q2 a2)
-          (swap! score inc))
-        (if (quiz/correct? q3 a3)
-          (swap! score inc))
-        (ring-resp/response (str @score)))
+          quizID (Integer. (:id inputs))
+          answers (:answers inputs)]
+        (ring-resp/response (str (quiz/get-score quizID answers))))
     (catch Throwable t
       (ring-resp/response "Internal error"))))
 
@@ -90,6 +79,7 @@
     (catch Throwable t
       (ring-resp/response "password cannot be empty"))))
 
+
 (defn submit
   [request]
   (try
@@ -104,6 +94,10 @@
     (catch Throwable t
       (ring-resp/response "failed to register"))))
 
+(defn getQuizNumber
+  [request]
+  (bootstrap/json-response {:ids (quiz/get-quiz-ids)}))
+
 (defroutes routes
   ;; Defines "/" and "/about" routes with their associated :get handlers.
   ;; The interceptors defined after the verb map (e.g., {:get home-page}
@@ -116,7 +110,8 @@
      ["/check-password" {:post check-password}]
      ["/register" {:post submit}]
      ["/quiz" {:post quiz-page}]
-     ["/submitQuiz" {:post submit-quiz}]]]])
+     ["/submitQuiz" {:post submit-quiz}]
+     ["/getQuizCount" {:post getQuizNumber}]]]])
 
 ;; Consumed by gradesheet.server/create-server
 ;; See bootstrap/default-interceptors for additional options you can configure

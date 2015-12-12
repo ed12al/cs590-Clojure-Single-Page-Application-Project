@@ -23,4 +23,15 @@
 (defn get-score
   [id answers]
   (let [qmap (mc/find-one-as-map db document {:id id} ["answer"])]
-    (reduce + (map correct? (:answers qmap) answers))))
+    (reduce + (map correct? (:answer qmap) answers))))
+
+(defn get-id
+  [quiz]
+  (:id quiz))
+
+(defn get-quiz-ids
+  []
+  (let [qmap (mc/find-maps db document)]
+    (into [] (map get-id qmap))))
+
+

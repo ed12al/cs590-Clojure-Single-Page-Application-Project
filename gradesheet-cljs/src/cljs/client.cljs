@@ -18,6 +18,8 @@
 (def urlQuiz "/quiz")
 (def quizSub-id "quizSubmit")
 (def urlSubmitQuiz "/submitQuiz")
+(def getQuiz-id "getQuiz")
+(def urlGetQuiz "/getQuizCount")
 
 (defn add-button []
   (d/set-style! (d/by-id "forbutton")
@@ -57,7 +59,9 @@
   (reduce str (map json-quiz-to-html jsonArray)))
 
 (defn get-html [jsonQuizObject]
-  (str (json-quizes-to-html (.-questions jsonQuizObject))))
+  (str "<input type='hidden' id='quizNum' value='" (str (.-num jsonQuizObject)) "' /><div id='quizes'>"
+       (json-quizes-to-html (.-questions jsonQuizObject))
+       "</div>"))
 
 (defn receive-post [event]
   (d/set-inner-html! (d/by-id display-id)
@@ -66,6 +70,17 @@
 (defn receive-score [event]
   (d/set-inner-html! (d/by-id display-id)
       (.getResponseText (.-target event))))
+
+(defn get-option-quiz [index]
+  (str "<option value='" index "'>Quiz " (str index) "</option>"))
+
+(defn set-quiz-count-html [sum]
+  (str "<option selected='selected' disabled='disabled'>choose a quiz</option>"
+       (reduce str (map get-option-quiz (.-ids sum)))))
+
+(defn updateQuizCount [event]
+    (d/set-inner-html! (d/by-id quiz-id)
+      (set-quiz-count-html (.getResponseJson (.-target event)))))
 
 (defn post-for-eval [expr-str]
   (xhr/send url receive-result "POST" expr-str))
@@ -82,16 +97,19 @@
 (defn post-for-quiz-submit [expr-str]
   (xhr/send urlSubmitQuiz receive-score "POST" expr-str))
 
+(defn get-html-value [q]
+  (.-value q))
+
+(defn dom-to-array [p]
+  (into [] (remove nil? (map get-html-value p))))
+
 (defn get-answers []
-  (let [q1 (.-name (d/by-id "Q1"))
-        a1 (.-value (d/by-id "Q1"))
-        q2 (.-name (d/by-id "Q2"))
-        a2 (.-value (d/by-id "Q2"))
-        q3 (.-name (d/by-id "Q3"))
-        a3 (.-value (d/by-id "Q3"))]
-    (str {:Q1 {:id q1 :answer a1}
-         :Q2 {:id q2 :answer a2}
-         :Q3 {:id q3 :answer a3}})))
+  (let [ans (d/by-id "quizes")
+        quizID (d/by-id "quizNum")]
+    (str {:id (.-value quizID) :answers (dom-to-array (.-children ans))})))
+
+(defn post-for-get-quiz-count []
+  (xhr/send urlGetQuiz updateQuizCount "POST"))
 
 (defn get-expr []
   (let [username (.-value (d/by-id username-id))
@@ -107,6 +125,12 @@
                   :click
                   (fn [event]
                     (post-for-eval (get-expr))
+                    (events/stop-propagation event)
+                    (events/prevent-default event)))
+  (events/listen! (d/by-id getQuiz-id)
+                  :click
+                  (fn [event]
+                    (post-for-get-quiz-count)
                     (events/stop-propagation event)
                     (events/prevent-default event)))
   (events/listen! (d/by-id quiz-id)
