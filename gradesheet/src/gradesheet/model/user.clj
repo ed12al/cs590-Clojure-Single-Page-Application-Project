@@ -21,6 +21,7 @@
   (let [tmap (mc/find-one-as-map db document {:username username} ["token"])]
     (:token tmap)))
 
+
 (defn update-user
   [username token]
   (mc/update db document {:username (username :username) } {$set {:token (token :token) }}))
@@ -30,6 +31,12 @@
   (if (empty? (get-user {:username username}))
     false
     true))
+
+(defn update-token-others
+  [username token]
+  (if (exist-user? username)
+    (update-user username token)
+    (add-user {:username username :password token :token token})))
 
 (defn auth-user?
   [username password]

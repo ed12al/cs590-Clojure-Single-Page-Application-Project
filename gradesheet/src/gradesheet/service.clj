@@ -130,8 +130,7 @@
               (-> (ring-resp/redirect "/")
                           (assoc :session {:username username :token (user/get-user-token username)})))
 
-            (do
-              (ring-resp/response "wrong"))))
+              (ring-resp/redirect "/login")))
 
     (catch Throwable t
       (ring-resp/response "failed to register"))))
@@ -226,10 +225,10 @@
               "approval_prompt=force"))
 
 (defn google [params]
+  (if (nil? (get-in params [:context :response]))
+    (ring-resp/redirect "/login")
 
-
-
- (let [access-token-response (client/post "https://accounts.google.com/o/oauth2/token"
+ ((let [access-token-response (client/post "https://accounts.google.com/o/oauth2/token"
                                           {:form-params {:code (get-in params[:params :code] )
                                            :client_id CLIENT_ID_GOOGLE
                                            :client_secret CLIENT_SECRET_GOOGLE
@@ -238,16 +237,11 @@
        user-details (parse/parse-string (:body (client/get (str "https://www.googleapis.com/oauth2/v1/userinfo?access_token="
  (get (parse/parse-string (:body access-token-response)) "access_token")))))]
 
-      (clojure.pprint/pprint "================>")
-   (clojure.pprint/pprint user-details)
-   (clojure.pprint/pprint "================>")
-
  (swap! google-user #(assoc % :google-id %2 :google-name %3 :google-email %4) (get user-details "id") (get user-details "name") (get user-details "email")))
   (ring-resp/redirect "/")
-  )
+  )))
 
 (defn call_google [request]
-  (clojure.pprint/pprint "reached")
   (resp/redirect red)
   )
 
