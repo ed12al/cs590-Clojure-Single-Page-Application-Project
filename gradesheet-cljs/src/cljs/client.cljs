@@ -47,7 +47,7 @@
 
 (defn json-quiz-to-html [jsonQuiz]
   (let [question (.-question jsonQuiz)
-        quizChoices (.-choices quizValue)]
+        quizChoices (.-choices jsonQuiz)]
     (str "<p>" question "</p>
          <select>"
          (json-choices-to-option quizChoices)
@@ -57,7 +57,7 @@
   (reduce str (map json-quiz-to-html jsonArray)))
 
 (defn get-html [jsonQuizObject]
-  (str (json-quizes-to-html (:questions jsonQuizObject))))
+  (str (json-quizes-to-html (.-questions jsonQuizObject))))
 
 (defn receive-post [event]
   (d/set-inner-html! (d/by-id display-id)
