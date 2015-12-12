@@ -85,6 +85,12 @@
 (defn post-for-quiz-submit [expr-str]
   (xhr/send urlSubmitQuiz receive-score "POST" expr-str))
 
+(defn receive-token [response]
+  (.getResponseText (.-headers)))
+
+
+
+
 (defn get-answers []
   (let [q1 (.-name (d/by-id "Q1"))
         a1 (.-value (d/by-id "Q1"))
@@ -104,6 +110,7 @@
 (defn get-quiz []
   (let [num (.-value (d/by-id quiz-id))]
   (str {:quiz num})))
+
 
 (defn ^:export main []
   ;;(events/listen! (d/by-id button-id)

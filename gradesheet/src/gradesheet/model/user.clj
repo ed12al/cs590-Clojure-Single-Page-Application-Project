@@ -1,6 +1,7 @@
 (ns gradesheet.model.user
   (:require [monger.core :as mg]
             [monger.collection :as mc]
+            [monger.operators :refer :all]
             [monger.result :refer [ok? has-error?]]))
 
 (def conn (mg/connect))
@@ -14,6 +15,15 @@
 (defn get-user
   [search-criteria]
   (mc/find-maps db document search-criteria))
+
+(defn get-user-token
+  [username]
+  (let [tmap (mc/find-one-as-map db document {:username username} ["token"])]
+    (:token tmap)))
+
+(defn update-user
+  [username,token]
+  (mc/update db document {:username (username :username) } {$set {:token (token :token) }}))
 
 (defn exist-user?
   [username]
@@ -29,3 +39,9 @@
 
 
 (auth-user? "amit70" "test1234")
+
+;;(get-user-token "anand")
+
+;;(update-user {:username "anand"} {:token "jqdsgvckjqdgvc"})
+
+;;(add-user {:username "anand" :password "test1234"})

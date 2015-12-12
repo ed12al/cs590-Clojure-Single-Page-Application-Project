@@ -3,6 +3,7 @@
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.route.definition :refer [defroutes]]
+            [io.pedestal.interceptor.helpers :refer [definterceptor defhandler]]
             [ring.util.response :as ring-resp]
             [gradesheet.layout :as layout]
             [gradesheet.model.user :as user]
@@ -12,6 +13,8 @@
 (def upper (re-pattern "[A-Z]+"))
 (def number (re-pattern "[0-9]+"))
 (def special (re-pattern "[\"'!@#$%^&*()?]+"))
+
+(defn uuid [] (str (java.util.UUID/randomUUID)))
 
 (defn strength? [password]
   (and (re-find upper password)
@@ -103,6 +106,7 @@
     (catch Throwable t
       (ring-resp/response "failed to register"))))
 
+
 (defn validate-user
   [request]
 
@@ -112,27 +116,42 @@
           password (String. (get form "password"))]
 
           (if (user/auth-user? username password)
-            ;;(ring-resp/response "successfully login")
-            (ring-resp/redirect "/")
-            (ring-resp/response "wrong")))
+            (do
+              (user/update-user {:username username} {:token (uuid)})
+              (-> (ring-resp/redirect "/")
+                  (ring-resp/header "x-catalog-token" (user/get-user-token username))))
+
+            (do
+              (ring-resp/response "wrong"))))
 
     (catch Throwable t
       (ring-resp/response "failed to register"))))
+
+
+(defhandler token-check [request]
+  (let [token (get-in request [:headers "x-catalog-token"])]
+    (if (not (= token "o brave world"))
+      (assoc (ring-resp/response {:body "access denied"}) :status 403))))
+
+
 
 (defroutes routes
   ;; Defines "/" and "/about" routes with their associated :get handlers.
   ;; The interceptors defined after the verb map (e.g., {:get home-page}
   ;; apply to / and its children (/about).
-  [[["/" {:get home-page}
-     ;;^:interceptors [(body-params/body-params) bootstrap/html-body]
+  [[[ "/" {:get home-page}
+
      ["/login" {:get login-page}]
      ["/register" {:get register-page}]
      ["/check-username" {:post check-username}]
      ["/check-password" {:post check-password}]
+     ["/validate" {:post validate-user}]
      ["/register" {:post submit}]
+     ;;^:interceptors [(body-params/body-params) token-check]
+
      ["/quiz" {:post quiz-page}]
      ["/submitQuiz" {:post submit-quiz}]
-     ["/validate" {:post validate-user}]
+
      ]]])
 
 ;; Consumed by gradesheet.server/create-server
@@ -159,5 +178,5 @@
               ;; Either :jetty, :immutant or :tomcat (see comments in project.clj)
               ::bootstrap/type :jetty
               ;;::bootstrap/host "localhost"
-              ::bootstrap/port 3030})
+              ::bootstrap/port 8080})
 
