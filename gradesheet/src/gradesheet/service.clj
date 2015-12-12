@@ -126,9 +126,9 @@
 
           (if (user/auth-user? username password)
             (do
-              (user/update-user {:username username} {:token (uuid)})
+              (user/update-user username (uuid))
               (-> (ring-resp/redirect "/")
-                          (assoc :session {:username username :token (user/get-user-token username)})))
+                  (assoc :session {:username username :token (user/get-user-token username)})))
 
               (ring-resp/redirect "/login")))
 
@@ -225,21 +225,25 @@
               "approval_prompt=force"))
 
 (defn google [params]
-  (if (nil? (get-in params [:context :response]))
+  (if (= "access_denied" (get-in params [:params :error]))
     (ring-resp/redirect "/login")
-
- ((let [access-token-response (client/post "https://accounts.google.com/o/oauth2/token"
+  (let [access-token-response (client/post "https://accounts.google.com/o/oauth2/token"
                                           {:form-params {:code (get-in params[:params :code] )
                                            :client_id CLIENT_ID_GOOGLE
                                            :client_secret CLIENT_SECRET_GOOGLE
                                            :redirect_uri REDIRECT_URI_GOOGLE
                                            :grant_type "authorization_code"}})
        user-details (parse/parse-string (:body (client/get (str "https://www.googleapis.com/oauth2/v1/userinfo?access_token="
- (get (parse/parse-string (:body access-token-response)) "access_token")))))]
+ (get (parse/parse-string (:body access-token-response)) "access_token")))))
+        username (get user-details "id")
+        token (uuid)]
+ ;;(swap! google-user #(assoc % :google-id %2 :google-name %3 :google-email %4)
+        ;;(get user-details "id") (get user-details "name") (get user-details "email"))
+    (user/update-token-others username token)
+  (-> (ring-resp/redirect "/")
+      (assoc :session {:username username :token token})
+      ))))
 
- (swap! google-user #(assoc % :google-id %2 :google-name %3 :google-email %4) (get user-details "id") (get user-details "name") (get user-details "email")))
-  (ring-resp/redirect "/")
-  )))
 
 (defn call_google [request]
   (resp/redirect red)
@@ -261,12 +265,12 @@
      ["/register" {:get register-page}]
      ["/check-username" {:post check-username}]
      ["/check-password" {:post check-password}]
-     ["/validate" ^:interceptors [ middlewares/params middlewares/keyword-params session-interceptor ] {:post validate-user}]
+     ["/validate" ^:interceptors [middlewares/params middlewares/keyword-params session-interceptor] {:post validate-user}]
      ["/register" {:post register-user}]
      ["/getfb" {:get call_fb}]
      ["/auth_facebook" {:get facebook}]
      ["/google" {:get call_google}]
-     ["/auth_google" {:get google}]
+     ["/auth_google" ^:interceptors [session-interceptor] {:get google}]
      ["/logout" ^:interceptors [middlewares/params middlewares/keyword-params session-interceptor] {:post logout}]
      ["/quiz" ^:interceptors [session-interceptor] {:post quiz-page}]
      ["/submitQuiz" ^:interceptors [session-interceptor] {:post submit-quiz}]

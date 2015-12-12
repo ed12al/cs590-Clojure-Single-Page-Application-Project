@@ -24,7 +24,7 @@
 
 (defn update-user
   [username token]
-  (mc/update db document {:username (username :username) } {$set {:token (token :token) }}))
+  (mc/update db document {:username username} {$set {:token token}}))
 
 (defn exist-user?
   [username]
@@ -47,3 +47,4 @@
 (defn valid-token?
   [username token]
   (and username token (= token (get-user-token username))))
+
